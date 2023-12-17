@@ -1,0 +1,11 @@
+[package]
+name = "polars-ta"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.75"
+polars = { version="0.35.4", features = ["lazy", "describe", "dtype-datetime", "zip_with"] }
+thiserror = "1.0.50"
