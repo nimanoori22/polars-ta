@@ -17,7 +17,7 @@ impl Default for EmaOptions {
         EmaOptions {
             length: Some(10),
             adjust: false,
-            mamode: None,
+            mamode: Some("sma".to_string()),
             offset: None,
             fillna: false,
         }
