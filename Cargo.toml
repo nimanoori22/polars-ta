@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.75"
-polars = { version="0.35.4", features = ["lazy", "describe", "dtype-datetime", "zip_with"] }
+polars = { version="0.35.4", features = ["lazy","describe","rolling_window","abs","dtype-datetime","zip_with", "ewma"] }
 thiserror = "1.0.50"

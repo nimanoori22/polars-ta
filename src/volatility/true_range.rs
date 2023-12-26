@@ -1,10 +1,8 @@
 use crate::utils::core::{get_drift, get_offset, non_zero_range};
 use polars::prelude::*;
 use crate::utils::error::CommandResult;
-use crate::utils::math::abs;
 
 pub fn true_range(
-    datetime: &Series,
     high: &Series, 
     low: &Series, 
     close: &Series, 
@@ -65,8 +63,12 @@ mod tests {
         combine_date_time, 
         convert_to_naive_datetime
     };
+    use polars::prelude::abs;
+    use polars::prelude::*;
 
-    use super::*;
+    use super::true_range;
+
+    // use super::*;
 
     #[test]
     fn test_true_range() {
@@ -88,7 +90,6 @@ mod tests {
         let close = df.column("close").unwrap();
 
         let result = true_range(
-            &df.column("datetime").unwrap(),
             &high,
             &low, 
             &close, 
