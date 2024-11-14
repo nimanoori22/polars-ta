@@ -19,6 +19,11 @@ impl From<anyhow::Error> for CommandError {
     }
 }
 
+impl From<&str> for CommandError {
+    fn from(error: &str) -> Self {
+        CommandError::Other(error.to_string())
+    }
+}
 
 pub type CommandResult<T, E = CommandError> = AnyResult<T, E>;
 

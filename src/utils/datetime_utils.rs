@@ -2,7 +2,7 @@ use polars::export::chrono::NaiveDateTime;
 use polars::prelude::*;
 
 
-fn is_datetime64_any_dtype(s: &Series) -> bool {
+fn is_datetime64_any_dtype(s: &Column) -> bool {
     match s.dtype() {
         DataType::Date | DataType::Datetime(..) => true,
         _ => false,
@@ -59,7 +59,7 @@ mod tests {
         let mut df = csv_to_dataframe(
             "data/AUDNZD1.csv", 
             false
-        );
+        ).unwrap();
         let _ = set_column_names(
             &mut df, 
             vec!["date", "time", "open", "high", "low", "close", "volume"]
@@ -81,7 +81,7 @@ mod tests {
         let mut df = csv_to_dataframe(
             "data/AUDNZD1.csv", 
             false
-        );
+        ).unwrap();
         let _ = set_column_names(
             &mut df, 
             vec!["date", "time", "open", "high", "low", "close", "volume"]

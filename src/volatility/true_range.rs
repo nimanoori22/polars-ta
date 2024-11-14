@@ -4,21 +4,27 @@ use crate::utils::error::CommandResult;
 use crate::utils::math::abs;
 
 pub fn true_range(
-    datetime: &Series,
-    high: &Series, 
-    low: &Series, 
-    close: &Series, 
+    datetime: &Column,
+    high: &Column, 
+    low: &Column, 
+    close: &Column, 
     drift: Option<i32>, 
     offset: Option<i32>
 ) -> CommandResult<Series> {
     let drift = get_drift(drift);
     let offset = get_offset(offset);
 
-    let high_low_range = non_zero_range(high, low)?;
+    let high_low_range = non_zero_range(high, low)?.into_column();
     let prev_close = close.shift(drift as i64);
 
-    let high_minus_prev_close = high - &prev_close;
-    let prev_close_minus_low = &prev_close - low;
+    let high_minus_prev_close = match high - &prev_close {
+        Ok(diff) => diff.into_column(),
+        Err(_) => return Err("Failed to calculate difference".into())
+    };
+    let prev_close_minus_low = match &prev_close - low {
+        Ok(diff) => diff.into_column(),
+        Err(_) => return Err("Failed to calculate difference".into())
+    };
 
     let ranges = vec![
         abs(&high_low_range)?,
@@ -73,7 +79,7 @@ mod tests {
         let mut df = csv_to_dataframe(
             "data/AUDNZD1.csv", 
             false
-        );
+        ).unwrap();
         let _ = set_column_names(
             &mut df, 
             vec!["date", "time", "open", "high", "low", "close", "volume"]
@@ -95,5 +101,6 @@ mod tests {
             Some(1), 
             Some(0)
         ).unwrap();
+        println!("{:?}", result);
     }
 }

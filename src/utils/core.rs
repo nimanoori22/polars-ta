@@ -35,8 +35,11 @@ fn is_percent(x: Option<f64>) -> bool {
 }
 
 
-pub fn non_zero_range(high: &Series, low: &Series) -> CommandResult<Series> {
-    let diff = high - low;
+pub fn non_zero_range(high: &Column, low: &Column) -> CommandResult<Series> {
+    let diff = match high - low {
+        Ok(diff) => diff,
+        Err(_) => return Err("Failed to calculate difference".into()),
+    };
     // diff to vector
     let diff = diff.f64()?.into_iter().collect::<Vec<_>>();
     // check if any value is zero and add epsilon if true
@@ -48,7 +51,7 @@ pub fn non_zero_range(high: &Series, low: &Series) -> CommandResult<Series> {
         }
     }).collect::<Vec<_>>();
     // vector to series
-    let diff = Series::new("diff", diff);
+    let diff = Series::new("diff".into(), diff);
     Ok(diff)
 }
 
@@ -94,7 +97,7 @@ mod tests {
         let mut df = csv_to_dataframe(
             "data/AUDNZD1.csv", 
             false
-        );
+        ).unwrap();
         let _ = set_column_names(
             &mut df, 
             vec!["date", "time", "open", "high", "low", "close", "volume"]
