@@ -35,17 +35,6 @@ pub fn dot(w: &[f64], x: &[f64]) -> f64 {
 }
 
 
-pub fn abs(series: &Column) -> Result<Column, PolarsError> {
-    let series = series.f64()?;
-    let abs_series = series
-        .apply_values(
-            |value| value.abs()
-        );
-    Ok(abs_series.into_column())
-}
-
-
-
 mod tests {
     use super::*;
 
