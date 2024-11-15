@@ -1,35 +1,35 @@
 use crate::utils::core::{get_drift, get_offset, non_zero_range};
+// use crate::utils::math::abs;
 use polars::prelude::*;
 use crate::utils::error::CommandResult;
-use crate::utils::math::abs;
 
 pub fn true_range(
-    datetime: &Column,
-    high: &Column, 
-    low: &Column, 
-    close: &Column, 
+    high: &Series, 
+    low: &Series, 
+    close: &Series, 
     drift: Option<i32>, 
     offset: Option<i32>
 ) -> CommandResult<Series> {
     let drift = get_drift(drift);
     let offset = get_offset(offset);
+    let shifted_close = close.shift(drift as i64);
 
-    let high_low_range = non_zero_range(high, low)?.into_column();
-    let prev_close = close.shift(drift as i64);
+    let high_low_range = non_zero_range(high, low)?;
+    let prev_close: &Series = &shifted_close.as_series();
 
-    let high_minus_prev_close = match high - &prev_close {
-        Ok(diff) => diff.into_column(),
+    let high_minus_prev_close = match high - prev_close {
+        Ok(diff) => diff,
         Err(_) => return Err("Failed to calculate difference".into())
     };
-    let prev_close_minus_low = match &prev_close - low {
-        Ok(diff) => diff.into_column(),
+    let prev_close_minus_low = match prev_close - low {
+        Ok(diff) => diff,
         Err(_) => return Err("Failed to calculate difference".into())
     };
 
     let ranges = vec![
-        abs(&high_low_range)?,
-        abs(&high_minus_prev_close)?,
-        abs(&prev_close_minus_low)?
+        abs(&high_low_range)?.into_column(),
+        abs(&high_minus_prev_close)?.into_column(),
+        abs(&prev_close_minus_low)?.into_column()
     ];
 
     let df : DataFrame = DataFrame::new(ranges)?;
@@ -71,8 +71,12 @@ mod tests {
         combine_date_time, 
         convert_to_naive_datetime
     };
+    use polars::prelude::abs;
+    use polars::prelude::*;
 
-    use super::*;
+    use super::true_range;
+
+    // use super::*;
 
     #[test]
     fn test_true_range() {
@@ -89,12 +93,11 @@ mod tests {
             &df, 
             "%Y.%m.%d %H:%M"
         ).unwrap();
-        let high = df.column("high").unwrap();
-        let low = df.column("low").unwrap();
-        let close = df.column("close").unwrap();
+        let high = df.column("high").unwrap().as_series().unwrap();
+        let low = df.column("low").unwrap().as_series().unwrap();
+        let close = df.column("close").unwrap().as_series().unwrap();
 
         let result = true_range(
-            &df.column("datetime").unwrap(),
             &high,
             &low, 
             &close, 

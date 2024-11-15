@@ -1,4 +1,5 @@
-use polars::export::chrono::NaiveDateTime;
+use polars::export::chrono::DateTime;
+use polars::export::chrono::Utc;
 use polars::prelude::*;
 
 
@@ -10,8 +11,8 @@ fn is_datetime64_any_dtype(s: &Column) -> bool {
 }
 
 
-pub fn unix_timestamp_to_naive_datetime(timestamp: i64) -> NaiveDateTime {
-    let naive = NaiveDateTime::from_timestamp_millis(timestamp).unwrap();
+pub fn unix_timestamp_to_naive_datetime(timestamp: i64) -> DateTime<Utc> {
+    let naive = DateTime::from_timestamp_millis(timestamp).unwrap();
     naive
 }
 

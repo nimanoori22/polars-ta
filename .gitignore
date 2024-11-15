@@ -18,3 +18,10 @@ Cargo.lock
 
 /target
 /Cargo.lock
+
+# notes
+/notes.txt
+
+atr.rs
+
+```

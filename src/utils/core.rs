@@ -35,7 +35,7 @@ fn is_percent(x: Option<f64>) -> bool {
 }
 
 
-pub fn non_zero_range(high: &Column, low: &Column) -> CommandResult<Series> {
+pub fn non_zero_range(high: &Series, low: &Series) -> CommandResult<Series> {
     let diff = match high - low {
         Ok(diff) => diff,
         Err(_) => return Err("Failed to calculate difference".into()),
@@ -107,8 +107,8 @@ mod tests {
             &df, 
             "%Y.%m.%d %H:%M"
         ).unwrap();
-        let high = df.column("high").unwrap();
-        let low = df.column("low").unwrap();
+        let high = df.column("high").unwrap().as_series().unwrap();
+        let low = df.column("low").unwrap().as_series().unwrap();
         let diff = non_zero_range(high, low).unwrap();
         println!("{:?}", diff);
     }
